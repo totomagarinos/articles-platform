@@ -7,9 +7,9 @@ class CustomUser(AbstractUser):
   WRITER = "writer"
 
   ROLE_CHOICES = [
-    (ADMIN, "Administrador"),
+    (ADMIN, "Administrator"),
     (EDITOR, "Editor"),
-    (WRITER, "Escritor"),
+    (WRITER, "Writer"),
   ]
 
   role = models.CharField(max_length=20, choices=ROLE_CHOICES, null=True, blank=True)
