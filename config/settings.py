@@ -124,3 +124,15 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 AUTH_USER_MODEL = 'users.CustomUser'
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# CAMBIAR LUEGO------------------------------------------------------
+# Redirige a los usuarios al login del admin si el Mixin los bloquea
+LOGIN_URL = '/admin/login/'
+
+# A dónde ir después de loguearse (si no hay un ?next= pendiente)
+LOGIN_REDIRECT_URL = 'article_list'  # O el nombre de tu home
+LOGOUT_REDIRECT_URL = '/admin/login'

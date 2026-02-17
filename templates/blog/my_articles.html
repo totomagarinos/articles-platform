@@ -1,0 +1,21 @@
+{% extends "base.html" %} 
+
+{% block title %}My Articles{% endblock title %} 
+
+{% block content %}
+  <h2>My Articles</h2>
+
+  {% if articles %}
+    <ul>
+      {% for article in articles %}
+        <li>
+          <a href="{% url 'article_detail' article.slug %}">{{ article.title }}</a>
+          - {{ article.get_status_display }} - {{ article.created_at|date:"M d, Y" }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You haven't written any articles yet.</p>
+  {% endif %}
+
+{% endblock content %}

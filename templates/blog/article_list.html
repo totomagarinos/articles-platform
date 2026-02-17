@@ -1,9 +1,16 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body></body>
-</html>
+{% extends "base.html" %} {% block content %}
+
+<h1>Artículos</h1>
+{% for article in articles %}
+<div>
+  <h2>
+    <a href="{% url 'article_detail' article.slug %}">{{ article.title }}</a>
+  </h2>
+  <p><strong>Autor: </strong>{{ article.author }}</p>
+  <p><strong>Categoría: </strong>{{ article.category }}</p>
+  <p><strong>Fecha: </strong>{{ article.created_at|date:"d M Y" }}</p>
+  <p>{{ article.content|truncatewords:30 }}</p>
+</div>
+{% empty %}
+<p>No hay artículos publicados aún.</p>
+{% endfor %} {% endblock content %}

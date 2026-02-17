@@ -1,0 +1,27 @@
+{% extends "base.html" %} {% block content %}
+<div>
+  <h1>{{ article.title }}</h1>
+  {% if article.image %}
+  <img width="300px" src="{{ article.image.url }}" alt="{{ article.title }}" />
+  {% endif %}
+  <p>{{ article.category }}</p>
+  {% for tag in article.tags.all %}
+  <p>{{ tag }}</p>
+  {% endfor %}
+  <p><strong>Autor: </strong>{{ article.author }}</p>
+  <p><strong>Fecha: </strong>{{ article.created_at }}</p>
+  <p>{{ article.content }}</p>
+  <h3>Comentarios</h3>
+  {% for comment in article.comments.all %}
+  <p>{{ comment.user.username }}: {{ comment.content }}</p>
+  {% endfor %}
+  <form method="post">
+    {% csrf_token %}
+    {{ form.content.errors }}
+    <div style="margin-bottom: 10px;">
+      {{ form.content }}
+    </div>
+    <button type="submit">Comentar</button>
+  </form>
+</div>
+{% endblock content %}
