@@ -11,6 +11,9 @@
         <li>
           <a href="{% url 'article_detail' article.slug %}">{{ article.title }}</a>
           - {{ article.get_status_display }} - {{ article.created_at|date:"M d, Y" }}
+          {% if article.status == 'draft' or article.status == 'rejected' %}
+            <a href="{% url "article_edit" article.slug %}">Editar</a>
+          {% endif %}
         </li>
       {% endfor %}
     </ul>

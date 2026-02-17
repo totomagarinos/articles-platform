@@ -5,20 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Blog{% endblock title %}</title>
 </head>
-<body>
-  <nav>
-    <ul>
-      <li><a href="{%url "article_list" %}">Home</a></li>
-      {% if user.is_authenticated %}
-        {% if user.is_writer %}
+  <body>
+    <nav>
+      <ul>
+        <li><a href="{%url "article_list" %}">Home</a></li>
+        {% if user.is_authenticated and user.is_writer %}
           <li><a href="{%url "article_create" %}">Nuevo Artículo</a></li>
+          <li><a href="{% url 'my_articles' %}">My Articles</a></li>
         {% endif %}
-        <li><a href="{% url 'my_articles' %}">My Articles</a></li>
-      {% endif %}
-    </ul>
-  </nav>
-  {% block content %}
-    contenido por defecto
-  {% endblock content %}
-</body>
+      </ul>
+    </nav>
+    {% block content %}
+      contenido por defecto
+    {% endblock content %}
+  </body>
 </html>
