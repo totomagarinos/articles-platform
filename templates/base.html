@@ -9,9 +9,13 @@
     <nav>
       <ul>
         <li><a href="{%url "article_list" %}">Home</a></li>
-        {% if user.is_authenticated and user.is_writer %}
-          <li><a href="{%url "article_create" %}">Nuevo Artículo</a></li>
-          <li><a href="{% url 'my_articles' %}">My Articles</a></li>
+        {% if user.is_authenticated %}
+          {% if user.is_writer %}
+            <li><a href="{%url "article_create" %}">Nuevo Artículo</a></li>
+            <li><a href="{% url 'my_articles' %}">Mis artículos</a></li>
+          {% elif user.is_editor %}
+            <li><a href="{% url 'pending_articles' %}">Pendientes de revisión</a></li>
+          {% endif %}
         {% endif %}
       </ul>
     </nav>

@@ -9,11 +9,16 @@
     <ul>
       {% for article in articles %}
         <li>
-          <a href="{% url 'article_detail' article.slug %}">{{ article.title }}</a>
+          <h3><a href="{% url 'article_detail' article.slug %}">{{ article.title }}</a></h3>
           - {{ article.get_status_display }} - {{ article.created_at|date:"M d, Y" }}
-          {% if article.status == 'draft' or article.status == 'rejected' %}
+
+          {% if article.status == 'draft' %}
+            <a href="{% url "article_edit" article.slug %}">Editar</a>
+            <a href="{% url "submit_for_review" article.slug %}">Enviar a revisión</a>
+          {% elif article.status == 'rejected' %}
             <a href="{% url "article_edit" article.slug %}">Editar</a>
           {% endif %}
+          <a href="{% url "article_delete" article.slug %}">Eliminar</a>
         </li>
       {% endfor %}
     </ul>

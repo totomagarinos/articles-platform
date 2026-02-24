@@ -23,6 +23,10 @@ class CustomUser(AbstractUser):
     def is_writer(self):
         return self.role == self.WRITER
 
+    @property
+    def is_editor(self):
+        return self.role == self.EDITOR
+
     def __str__(self):
         role_display = self.get_role_display() if self.role else "Usuario"
         return f"{self.username} - {role_display}"

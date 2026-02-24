@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Artículos pendientes
+{% endblock title %}
+
+{% block content %}
+  <ul>
+    {% for article in articles %}
+    <li>
+      <h2>
+        <a href="{% url 'article_detail' article.slug %}">{{ article.title }}</a>
+      </h2>
+      <p><strong>Autor: </strong>{{ article.author }}</p>
+      <p><strong>Fecha: </strong>{{ article.created_at|date:"d M Y" }}</p>
+      <a href="review_article" article.slug>Revisar</a>
+    </li>
+  </ul>
+  {% empty %}
+    <p>No hay artículos para revisar.</p>
+  {% endfor %}
+{% endblock content %}

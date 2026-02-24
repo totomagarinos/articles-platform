@@ -1,11 +1,19 @@
-from django.shortcuts import redirect
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic import (
+    ListView,
+    DetailView,
+    CreateView,
+    UpdateView,
+    DeleteView,
+)
 from .models import Article
 from users.models import CustomUser
 from .forms import CommentForm, ArticleCreateForm
 from django.views.generic.edit import FormMixin
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 
 class ArticleListView(ListView):
@@ -90,6 +98,18 @@ class ArticleUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return reverse("article_detail", kwargs={"slug": self.object.slug})
 
 
+class ArticleDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Article
+    template_name = "blog/article_confirm_delete.html"
+
+    def test_func(self):
+        article = self.get_object()
+        return article.author == self.request.user
+
+    def get_success_url(self):
+        return reverse("my_articles")
+
+
 class MyArticlesView(LoginRequiredMixin, ListView):
     model = Article
     template_name = "blog/my_articles.html"
@@ -97,3 +117,38 @@ class MyArticlesView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Article.objects.filter(author=self.request.user).order_by("-created_at")
+
+
+@login_required
+def submit_for_review(request, slug):
+    article = get_object_or_404(Article, slug=slug)
+
+    if article.author != request.user:
+        return HttpResponseForbidden("No tienes permiso")
+
+    if article.status != Article.DRAFT:
+        return HttpResponseForbidden("Solo artículos en borrador")
+
+    article.status = Article.PENDING
+    article.save()
+
+    return redirect("my_articles")
+
+
+class PendingArticlesView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Article
+    template_name = "blog/pending_articles.html"
+    context_object_name = "articles"
+
+    def test_func(self):
+        user = self.request.user
+        return user.role == CustomUser.EDITOR
+
+    def handle_no_permission(self):
+        if self.request.user.is_authenticated:
+            return redirect("article_list")
+        else:
+            return super().handle_no_permission()
+
+    def get_queryset(self):
+        return Article.objects.filter(status=Article.PENDING).order_by("-created_at")

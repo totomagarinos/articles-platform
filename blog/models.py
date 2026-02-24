@@ -35,10 +35,10 @@ class Article(models.Model):
     REJECTED = "rejected"
 
     STATUS_CHOICES = [
-        (DRAFT, "Draft"),
-        (PENDING, "Under review"),
-        (PUBLISHED, "Published"),
-        (REJECTED, "Rejected"),
+        (DRAFT, "Borrador"),
+        (PENDING, "En revisión"),
+        (PUBLISHED, "Publicado"),
+        (REJECTED, "Rechazado"),
     ]
 
     title = models.CharField(max_length=100)

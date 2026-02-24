@@ -8,7 +8,9 @@
       {% endif %}
     </div>
     {% endfor %}
-    <button type="submit">{% if form.instance.pk %}Editar{% else %}Crear{% endif %}</button>
+    <button type="submit">
+      {% if form.instance.pk %}Guardar{% else %}Crear{% endif %}
+    </button>
   </form>
 </div>
 {% endblock content %}
