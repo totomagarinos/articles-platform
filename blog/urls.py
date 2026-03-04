@@ -8,6 +8,8 @@ from .views import (
     ArticleDeleteView,
     submit_for_review,
     PendingArticlesView,
+    ReviewArticleView,
+    toggle_like,
 )
 
 urlpatterns = [
@@ -19,7 +21,13 @@ urlpatterns = [
         name="article_delete",
     ),
     path("article/<slug:slug>/submit/", submit_for_review, name="submit_for_review"),
+    path("article/<slug:slug>/like/", toggle_like, name="toggle_like"),
     path("article/<slug:slug>/edit/", ArticleUpdateView.as_view(), name="article_edit"),
+    path(
+        "article/<slug:slug>/review/",
+        ReviewArticleView.as_view(),
+        name="review_article",
+    ),
     path("article/<slug:slug>/", ArticleDetailView.as_view(), name="article_detail"),
     path("my-articles/", MyArticlesView.as_view(), name="my_articles"),
     path("pending-articles/", PendingArticlesView.as_view(), name="pending_articles"),

@@ -1,6 +1,33 @@
 {% extends "base.html" %} {% block content %}
 
 <h1>Artículos</h1>
+<h2>Filtros:</h2>
+<form method="get" id="filterForm">
+  <div>
+    <label for="category">Categoría:</label>
+    <select name="category" id="category" onchange="cleanAndSubmit()">
+      <option value="">Todas</option>
+      {% for category in categories %}
+        <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>
+          {{ category.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label for="author">Autor:</label>
+    <select name="author" id="author" onchange="cleanAndSubmit()">
+      <option value="">Todos</option>
+      {% for author in authors %}
+        <option value="{{ author.id }}" {% if request.GET.author == author.id|stringformat:"s" %}selected{% endif %}>
+          {{ author.username }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+</form>
+
 {% for article in articles %}
 <div>
   <h2>
@@ -13,4 +40,21 @@
 </div>
 {% empty %}
 <p>No hay artículos publicados aún.</p>
-{% endfor %} {% endblock content %}
+{% endfor %}
+
+<script>
+  function cleanAndSubmit() {
+    const form = document.getElementById('filterForm');
+
+    const filters = form.querySelectorAll('select');
+
+    filters.forEach(filter => {
+      if (!filter.value) {
+        filter.disabled = true;
+      }
+    });
+
+    form.submit();
+  }
+</script>
+{% endblock content %}

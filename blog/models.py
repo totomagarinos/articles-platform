@@ -61,6 +61,13 @@ class Article(models.Model):
 
     updated_at = models.DateTimeField(auto_now=True)
 
+    liked_by = models.ManyToManyField(
+        CustomUser, related_name="liked_articles", blank=True
+    )
+
+    def total_likes(self):
+        return self.liked_by.count()
+
     class Meta:
         verbose_name = "Article"
         verbose_name_plural = "Articles"

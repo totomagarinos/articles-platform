@@ -1,0 +1,45 @@
+{% extends 'base.html' %} {% block content %}
+<h1>Revisión de Artículo: {{ article.title }}</h1>
+
+<div>
+  <p><strong>Autor:</strong> {{ article.author }}</p>
+  <p><strong>Fecha de creación:</strong> {{ article.created_at }}</p>
+
+  <div>
+    <h3>Contenido del Artículo</h3>
+    <div>{{ article.content|safe }}</div>
+  </div>
+</div>
+<hr />
+<h2>Evaluación del Editor</h2>
+
+<form method="POST">
+  {% csrf_token %} {% if form.errors %}
+  <div>
+    <p><strong>Por favor, corrige los siguientes errores:</strong></p>
+    <ul>
+      {% for field in form %} {% for error in field.errors %}
+      <li>{{ field.label }}: {{ error }}</li>
+      {% endfor %} {% endfor %} {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  <div>
+    <label for="{{ form.decision.id_for_label }}"
+      >{{ form.decision.label }}</label
+    >
+    {{ form.decision }}
+  </div>
+  <br />
+  <div>
+    <label for="{{ form.comments.id_for_label }}"
+      >{{ form.comments.label }}</label
+    ><br />
+    {{ form.comments }}
+  </div>
+  <br />
+  <button type="submit">Guardar Evaluación</button>
+</form>
+{% endblock content %}

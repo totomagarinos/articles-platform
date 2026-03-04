@@ -15,13 +15,40 @@
   {% for comment in article.comments.all %}
   <p>{{ comment.user.username }}: {{ comment.content }}</p>
   {% endfor %}
+  <button id="like-btn" data-url="{% url 'toggle_like' article.slug %}">
+    <span id="like_text">
+      {% if user in article.liked_by.all %}Unlike{% else %}Like{% endif %}
+    </span>
+  </button>
+  <span style="margin-left: 20px;" id="like_count">{{ article.total_likes }}</span> Likes
   <form method="post">
-    {% csrf_token %}
-    {{ form.content.errors }}
-    <div style="margin-bottom: 10px;">
-      {{ form.content }}
-    </div>
+    {% csrf_token %} {{ form.content.errors }}
+    <div style="margin-bottom: 10px">{{ form.content }}</div>
     <button type="submit">Comentar</button>
   </form>
+  
+  <script>
+    const likeButton = document.getElementById("like-btn");
+    const likeText = document.getElementById("like_text");
+    const likeCount = document.getElementById("like_count");
+    
+    likeButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      
+      fetch(likeButton.dataset.url, {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/json",
+        }
+      })
+      .then((response) => response.json())
+      .then((data) => {
+        likeCount.textContent = data.total_likes;
+        likeText.textContent = data.liked ? "Unlike" : "Like";
+      })
+      .catch(error => console.error("Error:", error));
+    });
+  </script>
 </div>
 {% endblock content %}

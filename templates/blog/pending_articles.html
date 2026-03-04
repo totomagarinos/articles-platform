@@ -13,10 +13,10 @@
       </h2>
       <p><strong>Autor: </strong>{{ article.author }}</p>
       <p><strong>Fecha: </strong>{{ article.created_at|date:"d M Y" }}</p>
-      <a href="review_article" article.slug>Revisar</a>
+      <a href="{% url "review_article" article.slug %}">Revisar</a>
     </li>
-  </ul>
-  {% empty %}
+    {% empty %}
     <p>No hay artículos para revisar.</p>
-  {% endfor %}
+    {% endfor %}
+  </ul>
 {% endblock content %}

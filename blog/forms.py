@@ -1,5 +1,5 @@
 from django import forms
-from .models import Comment, Article
+from .models import Comment, Article, Review
 
 
 class CommentForm(forms.ModelForm):
@@ -19,3 +19,15 @@ class ArticleCreateForm(forms.ModelForm):
         model = Article
         fields = ["title", "slug", "content", "image", "category", "tags"]
         widgets = {"tags": forms.CheckboxSelectMultiple(), "content": forms.Textarea()}
+
+
+class ReviewArticleForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ["decision", "comments"]
+        widgets = {
+            "decision": forms.RadioSelect(),
+            "comments": forms.Textarea(
+                attrs={"placeholder": "Feedback para el autor...", "rows": 4}
+            ),
+        }
