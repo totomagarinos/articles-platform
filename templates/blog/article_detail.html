@@ -11,11 +11,11 @@
   <p><strong>Autor: </strong>{{ article.author }}</p>
   <p><strong>Fecha: </strong>{{ article.created_at }}</p>
   <p>{{ article.content }}</p>
-  {% if user.is_authenticated and user == article.author and article.status == "rejected" and last_rejected_review %}
+  {% if user.is_authenticated and user == article.author and last_review %}
   <div style="border: 1px solid">
     <h3>Feedback del editor</h3>
-    <p>{{ last_rejected_review.comments }}</p>
-    <p><small>Revisado por {{ last_rejected_review.editor }} el {{ last_rejected_review.reviewed_at }}</small></p>
+    <p>{{ last_review.comments }}</p>
+    <p><small>Revisado por {{ last_review.editor }} el {{ last_review.reviewed_at }}</small></p>
   </div>
   {% endif %}
   <h3>Comentarios</h3>

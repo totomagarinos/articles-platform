@@ -54,17 +54,11 @@ class ArticleDetailView(FormMixin, DetailView):
         article = self.object
         user = self.request.user
 
-        if (
-            user.is_authenticated
-            and user == article.author
-            and article.status == Article.REJECTED
-        ):
-            last_rejected_review = Review.objects.filter(
-                article=article, decision=Review.REJECTED
-            ).first()
+        if (user.is_authenticated and user == article.author):
+            last_review = Review.objects.filter(article=article).first()
 
-            if last_rejected_review:
-                context["last_rejected_review"] = last_rejected_review
+            if last_review:
+                context["last_review"] = last_review
 
         return context
 
