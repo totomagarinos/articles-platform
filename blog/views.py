@@ -51,6 +51,21 @@ class ArticleDetailView(FormMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["form"] = self.get_form()
+        article = self.object
+        user = self.request.user
+
+        if (
+            user.is_authenticated
+            and user == article.author
+            and article.status == Article.REJECTED
+        ):
+            last_rejected_review = Review.objects.filter(
+                article=article, decision=Review.REJECTED
+            ).first()
+
+            if last_rejected_review:
+                context["last_rejected_review"] = last_rejected_review
+
         return context
 
     def post(self, request, *args, **kwargs):
