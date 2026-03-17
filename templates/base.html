@@ -19,9 +19,51 @@
           {% endif %}
         {% endif %}
       </ul>
+      <div>
+        <form method="get" id="searchForm">
+          <input type="text" placeholder="Buscar..." name="q" value="{{ request.GET.q|default:'' }}">
+          
+          <select name="category">
+            <option value="">Todas las categorías</option>
+            {% for cat in categories %}
+              <option value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+
+          <select name="tag">
+            <option value="">Todos los tags</option>
+            {% for tag in tags %}
+              <option value="{{ tag.slug }}" {% if request.GET.tag == tag.slug %}selected{% endif %}>{{ tag.name }}</option>
+            {% endfor %}
+          </select>
+          
+          <select name="author">
+            <option value="">Todos los autores</option>
+            {% for author in authors %}
+              <option value="{{ author.username }}" {% if request.GET.author == author.username %}selected{% endif %}>{{ author.username }}</option>
+            {% endfor %}
+          </select>
+          
+          <button type="button" onclick="cleanAndSubmit()">Buscar</button>
+        </form>
+      </div>
     </nav>
     {% block content %}
       contenido por defecto
     {% endblock content %}
+    <script>
+      function cleanAndSubmit() {        
+        const form = document.getElementById('searchForm');
+        const inputs = form.querySelectorAll('input, select');
+        
+        inputs.forEach(input => {
+          if (input.value === '' || input.value === null) {
+            input.disabled = true
+          }
+        });
+        
+        form.submit();
+      }
+    </script>
   </body>
 </html>

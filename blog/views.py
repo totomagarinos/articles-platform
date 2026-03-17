@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.http import HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -8,7 +9,7 @@ from django.views.generic import (
     UpdateView,
     DeleteView,
 )
-from .models import Article, Category, Review
+from .models import Article, Category, Tag, Review
 from users.models import CustomUser
 from .forms import CommentForm, ArticleCreateForm, ReviewArticleForm
 from django.views.generic.edit import FormMixin
@@ -24,22 +25,31 @@ class ArticleListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.all()
-        context['authors'] = CustomUser.objects.filter(role=CustomUser.WRITER)
         return context
 
     def get_queryset(self):
         queryset = Article.objects.filter(status=Article.PUBLISHED)
 
-        category_id = self.request.GET.get('category')
-        if category_id:
-            queryset = queryset.filter(category_id=category_id)
+        search_query = self.request.GET.get('q')
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) |
+                Q(content__icontains=search_query)
+            ).distinct()
 
-        author_id = self.request.GET.get('author')
-        if author_id:
-            queryset = queryset.filter(author_id=author_id)
+        category = self.request.GET.get('category')
+        if category:
+            queryset = queryset.filter(category__slug=category)
+            
+        tag = self.request.GET.get('tag')
+        if tag:
+            queryset = queryset.filter(tags__slug=tag)
 
-        return queryset
+        author = self.request.GET.get('author')
+        if author:
+            queryset = queryset.filter(author__username=author)
+
+        return queryset.distinct()
 
 
 class ArticleDetailView(FormMixin, DetailView):
