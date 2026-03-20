@@ -72,7 +72,7 @@ No explicit linter configuration file exists. However, follow these rules strict
 ### Models & Database
 - **User Model:** Always use `users.CustomUser` or `get_user_model()`. Do not use `django.contrib.auth.models.User` directly.
 - **Roles:** Use the defined constants in `CustomUser`:
-    - `CustomUser.ADMIN` ("admin")
+    - `CustomUser.READER` ("reader")
     - `CustomUser.EDITOR` ("editor")
     - `CustomUser.WRITER` ("writer")
 - **Fields:** Define `null=True, blank=True` for optional fields unless logic dictates otherwise.

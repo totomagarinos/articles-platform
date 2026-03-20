@@ -3,12 +3,12 @@ from django.contrib.auth.models import AbstractUser
 
 
 class CustomUser(AbstractUser):
-    ADMIN = "admin"
+    READER = "reader"
     EDITOR = "editor"
     WRITER = "writer"
 
     ROLE_CHOICES = [
-        (ADMIN, "Administrator"),
+        (READER, "Lector"),
         (EDITOR, "Editor"),
         (WRITER, "Escritor"),
     ]
