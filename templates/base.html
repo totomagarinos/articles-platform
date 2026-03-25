@@ -1,51 +1,63 @@
+{% load static tailwind_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Blog{% endblock title %}</title>
+
+  {% tailwind_css %}
 </head>
   <body>
-    <nav>
-      <li>Usuario: <strong>{{ user.username }}</strong></li>
-      <ul>
-        <li><a href="{%url "article_list" %}">Home</a></li>
+    <nav class="bg-white shadow-lg">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center space-x-8">
+            <a href="{%url "article_list" %}" class="text-xl font-bold text-gray-800">Home</a>
+
+            <button id="mobile-menu-button" class="md:hidden">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="flex-1 max-w-2xl mx-8">
+            <form method="get" id="searchForm">
+              <input type="text" placeholder="Buscar..." name="q" value="{{ request.GET.q|default:'' }}" class="min-w-2xs border-1 border-gray-100 rounded-xl p-2 bg-gray-100">
+            </form>
+          </div>
+
+          <div class="hidden md:flex space-x-4">
+            {% if user.is_authenticated %}
+              {% if user.is_writer %}
+                <a href="{%url "article_create" %}" class="font-medium text-blue-700 border-2 border-blue-700 rounded-xl p-2 hover:text-white hover:bg-blue-700">Nuevo Artículo</a>
+                <a href="{% url 'my_articles' %}" class="font-medium text-blue-700 border-2 border-blue-700 rounded-xl p-2 hover:text-white hover:bg-blue-700">Mis artículos</a>
+              {% elif user.is_editor %}
+                <a href="{% url 'pending_articles' %}" class="font-medium text-blue-700 border-2 border-blue-700 rounded-xl p-2 hover:text-white hover:bg-blue-700">Pendientes de revisión</a>
+              {% endif %}
+            {% endif %}
+          </div>
+
+          <div>
+            {% if user.is_authenticated %}
+              <span class="text-gray-700">{{ user.username }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div id="menu-mobile" class="hidden md:hidden">
+        <a href="{%url "article_list" %}" class="text-xl font-bold text-gray-800">Home</a>
         {% if user.is_authenticated %}
           {% if user.is_writer %}
-            <li><a href="{%url "article_create" %}">Nuevo Artículo</a></li>
-            <li><a href="{% url 'my_articles' %}">Mis artículos</a></li>
+            <a href="{%url "article_create" %}">Nuevo Artículo</a>
+            <a href="{% url 'my_articles' %}">Mis artículos</a>
           {% elif user.is_editor %}
-            <li><a href="{% url 'pending_articles' %}">Pendientes de revisión</a></li>
+            <a href="{% url 'pending_articles' %}">Pendientes de revisión</a>
           {% endif %}
         {% endif %}
-      </ul>
-      <div>
-        <form method="get" id="searchForm">
-          <input type="text" placeholder="Buscar..." name="q" value="{{ request.GET.q|default:'' }}">
-          
-          <select name="category">
-            <option value="">Todas las categorías</option>
-            {% for cat in categories %}
-              <option value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
-            {% endfor %}
-          </select>
-
-          <select name="tag">
-            <option value="">Todos los tags</option>
-            {% for tag in tags %}
-              <option value="{{ tag.slug }}" {% if request.GET.tag == tag.slug %}selected{% endif %}>{{ tag.name }}</option>
-            {% endfor %}
-          </select>
-          
-          <select name="author">
-            <option value="">Todos los autores</option>
-            {% for author in authors %}
-              <option value="{{ author.username }}" {% if request.GET.author == author.username %}selected{% endif %}>{{ author.username }}</option>
-            {% endfor %}
-          </select>
-          
-          <button type="button" onclick="cleanAndSubmit()">Buscar</button>
-        </form>
       </div>
     </nav>
     {% block content %}

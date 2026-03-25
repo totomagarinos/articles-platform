@@ -32,24 +32,22 @@ class ArticleListView(ListView):
 
         search_query = self.request.GET.get('q')
         if search_query:
-            queryset = queryset.filter(
-                Q(title__icontains=search_query) |
-                Q(content__icontains=search_query)
-            ).distinct()
-
-        category = self.request.GET.get('category')
-        if category:
-            queryset = queryset.filter(category__slug=category)
+            words = search_query.split()
             
-        tag = self.request.GET.get('tag')
-        if tag:
-            queryset = queryset.filter(tags__slug=tag)
+            q_objects = Q()
 
-        author = self.request.GET.get('author')
-        if author:
-            queryset = queryset.filter(author__username=author)
-
-        return queryset.distinct()
+            for word in words:
+                q_objects |= (
+                    Q(title__icontains=word) |
+                    Q(content__icontains=word) |
+                    Q(author__username__icontains=word) |
+                    Q(tags__name__icontains=word) |
+                    Q(category__name__icontains=word)
+                )
+            
+            queryset = queryset.filter(q_objects).distinct()
+        
+        return queryset
 
 
 class ArticleDetailView(FormMixin, DetailView):

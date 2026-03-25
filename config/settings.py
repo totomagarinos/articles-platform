@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django_extensions',
     'users',
     'blog',
+    'tailwind',
+    'theme',
 ]
 
 MIDDLEWARE = [
@@ -137,3 +139,5 @@ LOGIN_URL = '/admin/login/'
 # A dónde ir después de loguearse (si no hay un ?next= pendiente)
 LOGIN_REDIRECT_URL = 'article_list'  # O el nombre de tu home
 LOGOUT_REDIRECT_URL = '/admin/login'
+
+TAILWIND_APP_NAME = 'theme'
