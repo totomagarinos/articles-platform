@@ -1,16 +1,151 @@
-{% extends "base.html" %} {% block content %}
-<div>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %} {% for field in form %}
-    <div class="form-group">
-      {{ field.label_tag}} {{ field }} {% if field.errors %}
-      <div class="error">{{ field.errors }}</div>
+{% extends "base.html" %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Artículo{% endblock title %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">
+      {% if form.instance.pk %}Editar Artículo{% else %}Crear Artículo{% endif %}
+    </h1>
+    <p class="text-gray-500 mt-1">
+      {% if form.instance.pk %}Actualiza los detalles de tu artículo{% else %}Escribe un nuevo artículo{% endif %}
+    </p>
+  </div>
+
+  <!-- Form -->
+  <form method="post" enctype="multipart/form-data" class="space-y-6">
+    {% csrf_token %}
+
+    <!-- Title -->
+    <div>
+      <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        Título <span class="text-red-500">*</span>
+      </label>
+      <input 
+        type="text" 
+        name="{{ form.title.name }}"
+        id="{{ form.title.id_for_label }}"
+        value="{{ form.title.value|default:'' }}"
+        class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 {% if form.title.errors %}border-red-500{% endif %}"
+        placeholder="Título de tu artículo"
+      >
+      {% if form.title.errors %}
+        <p class="text-red-500 text-sm mt-1">{{ form.title.errors }}</p>
       {% endif %}
     </div>
-    {% endfor %}
-    <button type="submit">
-      {% if form.instance.pk %}Guardar{% else %}Crear{% endif %}
-    </button>
+
+    <!-- Content -->
+    <div>
+      <label for="{{ form.content.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        Contenido <span class="text-red-500">*</span>
+      </label>
+      <textarea 
+        name="{{ form.content.name }}"
+        id="{{ form.content.id_for_label }}"
+        rows="12"
+        class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none {% if form.content.errors %}border-red-500{% endif %}"
+        placeholder="Escribe el contenido de tu artículo..."
+      >{{ form.content.value|default:'' }}</textarea>
+      {% if form.content.errors %}
+        <p class="text-red-500 text-sm mt-1">{{ form.content.errors }}</p>
+      {% endif %}
+    </div>
+
+    <!-- Category & Tags -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Category -->
+      <div>
+        <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+          Categoría
+        </label>
+        <select 
+          name="{{ form.category.name }}"
+          id="{{ form.category.id_for_label }}"
+          class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white {% if form.category.errors %}border-red-500{% endif %}"
+        >
+          <option value="">Seleccionar categoría</option>
+          {% for choice in form.category.field.queryset %}
+            <option value="{{ choice.pk }}" {% if form.category.value == choice.pk %}selected{% endif %}>
+              {{ choice.name }}
+            </option>
+          {% endfor %}
+        </select>
+        {% if form.category.errors %}
+          <p class="text-red-500 text-sm mt-1">{{ form.category.errors }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Tags -->
+      <div>
+        <label for="{{ form.tags.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+          Tags
+        </label>
+        <select 
+          name="{{ form.tags.name }}"
+          id="{{ form.tags.id_for_label }}"
+          class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white {% if form.tags.errors %}border-red-500{% endif %}"
+          multiple
+        >
+          {% for choice in form.tags.field.queryset %}
+            <option value="{{ choice.pk }}" {% if choice.pk in form.tags.value %}selected{% endif %}>
+              {{ choice.name }}
+            </option>
+          {% endfor %}
+        </select>
+        <p class="text-xs text-gray-500 mt-1">Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples</p>
+        {% if form.tags.errors %}
+          <p class="text-red-500 text-sm mt-1">{{ form.tags.errors }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Image -->
+    {% if form.image %}
+    <div>
+      <label for="{{ form.image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+        Imagen
+      </label>
+      {% if form.instance.image %}
+        <div class="mb-2">
+          <img src="{{ form.instance.image.url }}" alt="Imagen actual" class="max-w-xs rounded-lg">
+          <p class="text-xs text-gray-500 mt-1">Imagen actual</p>
+        </div>
+      {% endif %}
+      <input 
+        type="file" 
+        name="{{ form.image.name }}"
+        id="{{ form.image.id_for_label }}"
+        class="block w-full text-sm text-gray-500
+          file:mr-4 file:py-2 file:px-4
+          file:rounded-full file:border-0
+          file:text-sm file:font-medium
+          file:bg-blue-50 file:text-blue-700
+          hover:file:bg-blue-100
+        "
+      >
+      {% if form.image.errors %}
+        <p class="text-red-500 text-sm mt-1">{{ form.image.errors }}</p>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Buttons -->
+    <div class="flex justify-end gap-4 pt-4">
+      <a 
+        href="{% if form.instance.pk %}{% url 'my_articles' %}{% else %}{% url 'article_list' %}{% endif %}"
+        class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+      >
+        Cancelar
+      </a>
+      <button 
+        type="submit"
+        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+      >
+        {% if form.instance.pk %}Guardar{% else %}Crear Artículo{% endif %}
+      </button>
+    </div>
   </form>
 </div>
 {% endblock content %}

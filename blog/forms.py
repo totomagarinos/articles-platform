@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.text import slugify
 from .models import Comment, Article, Review
 
 
@@ -17,8 +18,20 @@ class CommentForm(forms.ModelForm):
 class ArticleCreateForm(forms.ModelForm):
     class Meta:
         model = Article
-        fields = ["title", "slug", "content", "image", "category", "tags"]
-        widgets = {"tags": forms.CheckboxSelectMultiple(), "content": forms.Textarea()}
+        fields = ["title", "content", "image", "category", "tags"]
+        widgets = {
+            "tags": forms.SelectMultiple(),
+            "content": forms.Textarea(attrs={"placeholder": "Escribe el contenido de tu artículo..."}),
+        }
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        # Auto-generate slug from title
+        if not instance.slug:
+            instance.slug = slugify(instance.title)
+        if commit:
+            instance.save()
+        return instance
 
 
 class ReviewArticleForm(forms.ModelForm):

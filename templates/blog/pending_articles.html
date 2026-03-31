@@ -1,22 +1,58 @@
 {% extends "base.html" %}
 
-{% block title %}
-  Artículos pendientes
-{% endblock title %}
+{% block title %}Artículos Pendientes{% endblock title %}
 
 {% block content %}
-  <ul>
-    {% for article in articles %}
-    <li>
-      <h2>
-        <a href="{% url 'article_detail' article.slug %}">{{ article.title }}</a>
-      </h2>
-      <p><strong>Autor: </strong>{{ article.author }}</p>
-      <p><strong>Fecha: </strong>{{ article.created_at|date:"d M Y" }}</p>
-      <a href="{% url "review_article" article.slug %}">Revisar</a>
-    </li>
-    {% empty %}
-    <p>No hay artículos para revisar.</p>
-    {% endfor %}
-  </ul>
+<div class="max-w-3xl mx-auto">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Artículos Pendientes</h1>
+    <p class="text-gray-500 mt-1">Revisa los artículos que esperan ser aprobados</p>
+  </div>
+
+  {% if articles %}
+    <div class="space-y-4">
+      {% for article in articles %}
+        <article class="bg-white rounded-lg shadow-sm hover:shadow-md transition p-4 flex gap-4 items-start">
+          <!-- Avatar -->
+          <div class="flex-shrink-0">
+            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+              <span class="text-gray-500 font-medium">
+                {{ article.author.username|make_list|first|upper }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <!-- Title -->
+            <h2 class="text-lg font-semibold text-gray-800 hover:text-blue-600">
+              <a href="{% url 'article_detail' article.slug %}">{{ article.title }}</a>
+            </h2>
+
+            <!-- Meta -->
+            <div class="flex flex-wrap items-center gap-2 mt-1">
+              <span class="text-gray-600 text-sm">Por {{ article.author.username }}</span>
+              <span class="text-gray-400 text-sm">• {{ article.created_at|date:"M d, Y" }}</span>
+            </div>
+          </div>
+
+          <!-- Action -->
+          <div class="flex-shrink-0">
+            <a 
+              href="{% url 'review_article' article.slug %}"
+              class="inline-block text-sm px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            >
+              Revisar
+            </a>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-12 bg-white rounded-lg shadow-sm">
+      <p class="text-gray-500">No hay artículos para revisar.</p>
+    </div>
+  {% endif %}
+</div>
 {% endblock content %}

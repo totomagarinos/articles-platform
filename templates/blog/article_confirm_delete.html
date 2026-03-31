@@ -1,13 +1,51 @@
-{% extends "base.html" %} {% block title %} Borrar artículo {% endblock title %}
+{% extends "base.html" %}
+
+{% block title %}Eliminar artículo{% endblock title %}
+
 {% block content %}
-<div>
-  <h3>
-    Seguro que desea borrar el artículo: <strong>{{ article.title }}</strong>?
-  </h3>
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit">Confirmar eliminación</button>
-    <a href="{% url "my_articles" %}">Cancelar</a>
-  </form>
+<div class="max-w-lg mx-auto">
+  <!-- Warning Card -->
+  <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+    <!-- Warning Icon -->
+    <div class="w-16 h-16 mx-auto mb-6 bg-yellow-100 rounded-full flex items-center justify-center">
+      <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+      </svg>
+    </div>
+
+    <!-- Question -->
+    <h2 class="text-xl font-semibold text-gray-900 mb-4">
+      ¿Estás seguro de que quieres eliminar este artículo?
+    </h2>
+
+    <!-- Article Title -->
+    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+      <p class="text-gray-700 font-medium">"{{ article.title }}"</p>
+    </div>
+
+    <!-- Warning Text -->
+    <p class="text-gray-500 text-sm mb-8">
+      Esta acción no se puede deshacer.
+    </p>
+
+    <!-- Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a 
+        href="{% url 'my_articles' %}"
+        class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+      >
+        Cancelar
+      </a>
+      <form method="post" class="inline">
+        {% csrf_token %}
+        <button 
+          type="submit"
+          class="w-full sm:w-auto px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+        >
+          Eliminar
+        </button>
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock content %}

@@ -11,7 +11,7 @@
   <div class="space-y-6">
     {% for article in articles %}
     <article
-      class="bg-white rounded-lg shadow-sm hover:shadow-md transition p-4 flex gap-4 items-start"
+      class="bg-white rounded-lg shadow-sm hover:shadow-md transition p-6 flex gap-4 items-start"
     >
       <!-- Avatar -->
       <div class="flex-shrink-0">
@@ -67,7 +67,7 @@
       </div>
 
       <!-- Actions -->
-      <div class="flex-shrink-0 flex flex-wrap gap-2 items-center">
+      <div class="flex-shrink-0 flex flex-col gap-2 items-end">
         {% if article.status == 'draft' or article.status == 'rejected' %}
         <a
           href="{% url 'submit_for_review' article.slug %}"
