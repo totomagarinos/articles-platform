@@ -9,7 +9,7 @@ from django.views.generic import (
     UpdateView,
     DeleteView,
 )
-from .models import Article, Category, Tag, Review
+from .models import Article, Review
 from users.models import CustomUser
 from .forms import CommentForm, ArticleCreateForm, ReviewArticleForm
 from django.views.generic.edit import FormMixin

@@ -1,80 +1,161 @@
 {% load static tailwind_tags %}
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Blog{% endblock title %}</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Blog{% endblock title %}</title>
 
-  {% tailwind_css %}
-</head>
-  <body>
-    <nav class="bg-white shadow-lg">
+    {% tailwind_css %}
+  </head>
+  <body class="bg-gray-50">
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4">
-        <div class="flex justify-between items-center h-16">
-          <div class="flex items-center space-x-8">
-            <a href="{%url "article_list" %}" class="text-xl font-bold text-gray-800">Home</a>
-
-            <button id="mobile-menu-button" class="md:hidden">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-              </svg>
-            </button>
+        <!-- Desktop: flex container -->
+        <div class="hidden md:flex justify-between items-center h-16">
+          <!-- Logo -->
+          <div>
+            <a
+              href="{% url 'article_list' %}"
+              class="text-xl font-bold text-gray-800 hover:text-blue-600"
+              >Home</a
+            >
           </div>
 
-          <div class="flex-1 max-w-2xl mx-8">
-            <form method="get" id="searchForm">
-              <input type="text" placeholder="Buscar..." name="q" value="{{ request.GET.q|default:'' }}" class="min-w-2xs border-1 border-gray-100 rounded-xl p-2 bg-gray-100">
+          <!-- Search (center) -->
+          <div class="flex-1 max-w-xl mx-8">
+            <form method="get" id="searchForm" class="w-full">
+              <input
+                type="text"
+                placeholder="Buscar artículos..."
+                name="q"
+                value="{{ request.GET.q|default:'' }}"
+                class="w-full border border-gray-200 rounded-full px-4 py-2 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+              />
             </form>
           </div>
 
-          <div class="hidden md:flex space-x-4">
-            {% if user.is_authenticated %}
-              {% if user.is_writer %}
-                <a href="{%url "article_create" %}" class="font-medium text-blue-700 border-2 border-blue-700 rounded-xl p-2 hover:text-white hover:bg-blue-700">Nuevo Artículo</a>
-                <a href="{% url 'my_articles' %}" class="font-medium text-blue-700 border-2 border-blue-700 rounded-xl p-2 hover:text-white hover:bg-blue-700">Mis artículos</a>
-              {% elif user.is_editor %}
-                <a href="{% url 'pending_articles' %}" class="font-medium text-blue-700 border-2 border-blue-700 rounded-xl p-2 hover:text-white hover:bg-blue-700">Pendientes de revisión</a>
-              {% endif %}
+          <!-- User menu -->
+          <div class="flex items-center space-x-4">
+            {% if user.is_authenticated %} {% if user.is_writer %}
+            <a
+              href="{% url 'article_create' %}"
+              class="px-4 py-2 text-blue-600 border-2 border-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition"
+              >Nuevo Artículo</a
+            >
+            <a
+              href="{% url 'my_articles' %}"
+              class="text-gray-600 hover:text-blue-600"
+              >Mis artículos</a
+            >
+            {% elif user.is_editor %}
+            <a
+              href="{% url 'pending_articles' %}"
+              class="px-4 py-2 text-blue-600 border-2 border-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition"
+              >Pendientes</a
+            >
             {% endif %}
-          </div>
-
-          <div>
-            {% if user.is_authenticated %}
-              <span class="text-gray-700">{{ user.username }}</span>
+            <span class="text-gray-900">{{ user.username }}</span>
             {% endif %}
           </div>
         </div>
+
+        <!-- Mobile: simplified header -->
+        <div class="md:hidden flex justify-between items-center h-14">
+          <a
+            href="{% url 'article_list' %}"
+            class="text-lg font-bold text-gray-800"
+            >Home</a
+          >
+
+          <button
+            id="mobile-menu-button"
+            class="p-2 text-gray-600 hover:text-blue-600"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <div id="menu-mobile" class="hidden md:hidden">
-        <a href="{%url "article_list" %}" class="text-xl font-bold text-gray-800">Home</a>
-        {% if user.is_authenticated %}
+      <!-- Mobile: expanded menu -->
+      <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200">
+        <!-- Search -->
+        <div class="p-4">
+          <form method="get" id="mobileSearchForm">
+            <input
+              type="text"
+              placeholder="Buscar artículos..."
+              name="q"
+              value="{{ request.GET.q|default:'' }}"
+              class="w-full border border-gray-200 rounded-lg px-4 py-2 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+            />
+          </form>
+        </div>
+
+        <!-- Links -->
+        <div class="px-4 pb-4 space-y-2">
+          {% if user.is_authenticated %}
+          <div class="text-gray-600 py-2">{{ user.username }}</div>
           {% if user.is_writer %}
-            <a href="{%url "article_create" %}">Nuevo Artículo</a>
-            <a href="{% url 'my_articles' %}">Mis artículos</a>
+          <a
+            href="{% url 'article_create' %}"
+            class="block py-2 text-blue-600 hover:text-blue-800"
+            >Nuevo Artículo</a
+          >
+          <a
+            href="{% url 'my_articles' %}"
+            class="block py-2 text-gray-600 hover:text-blue-600"
+            >Mis artículos</a
+          >
           {% elif user.is_editor %}
-            <a href="{% url 'pending_articles' %}">Pendientes de revisión</a>
-          {% endif %}
-        {% endif %}
+          <a
+            href="{% url 'pending_articles' %}"
+            class="block py-2 text-blue-600 hover:text-blue-800"
+            >Pendientes de revisión</a
+          >
+          {% endif %} {% endif %}
+        </div>
       </div>
     </nav>
-    {% block content %}
-      contenido por defecto
-    {% endblock content %}
+
+    <!-- Main content -->
+    <main class="max-w-7xl mx-auto px-4 py-6">
+      {% block content %} contenido por defecto {% endblock content %}
+    </main>
+
     <script>
-      function cleanAndSubmit() {        
-        const form = document.getElementById('searchForm');
-        const inputs = form.querySelectorAll('input, select');
-        
-        inputs.forEach(input => {
-          if (input.value === '' || input.value === null) {
-            input.disabled = true
+      const mobileMenuBtn = document.getElementById("mobile-menu-button");
+      const mobileMenu = document.getElementById("mobile-menu");
+
+      if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener("click", () => {
+          mobileMenu.classList.toggle("hidden");
+        });
+      }
+
+      // Auto-submit search on mobile when pressing enter
+      const mobileSearchForm = document.getElementById("mobileSearchForm");
+      const mobileSearchInput = mobileSearchForm?.querySelector("input");
+      if (mobileSearchInput) {
+        mobileSearchInput.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            mobileSearchForm.submit();
           }
         });
-        
-        form.submit();
       }
     </script>
   </body>

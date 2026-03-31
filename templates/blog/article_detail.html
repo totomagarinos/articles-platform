@@ -1,61 +1,206 @@
 {% extends "base.html" %} {% block content %}
-<div>
-  <h1>{{ article.title }}</h1>
+<div class="max-w-3xl mx-auto">
+  <!-- Header -->
+  <header class="mb-8">
+    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+      {{ article.title }}
+    </h1>
+
+    <!-- Meta -->
+    <div class="flex flex-wrap items-center gap-3 text-sm text-gray-500 mb-4">
+      <div class="flex items-center gap-2">
+        <div
+          class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center"
+        >
+          <span class="text-gray-500 text-sm font-medium">
+            {{ article.author.username|make_list|first|upper }}
+          </span>
+        </div>
+        <span class="text-gray-700">{{ article.author.username }}</span>
+      </div>
+      <span>•</span>
+      <span>{{ article.created_at|date:"M d, Y" }}</span>
+      {% if article.category %}
+      <span>•</span>
+      <span class="text-blue-600">{{ article.category.name }}</span>
+      {% endif %}
+    </div>
+
+    <!-- Tags -->
+    {% if article.tags.all %}
+    <div class="flex flex-wrap gap-2 mb-4">
+      {% for tag in article.tags.all %}
+      <span class="text-sm text-blue-600 hover:underline cursor-pointer">
+        #{{ tag.name }}
+      </span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </header>
+
+  <!-- Image -->
   {% if article.image %}
-  <img width="300px" src="{{ article.image.url }}" alt="{{ article.title }}" />
-  {% endif %}
-  <p>{{ article.category }}</p>
-  {% for tag in article.tags.all %}
-  <p>{{ tag }}</p>
-  {% endfor %}
-  <p><strong>Autor: </strong>{{ article.author }}</p>
-  <p><strong>Fecha: </strong>{{ article.created_at }}</p>
-  <p>{{ article.content }}</p>
-  {% if user.is_authenticated and user == article.author and last_review %}
-  <div style="border: 1px solid">
-    <h3>Feedback del editor</h3>
-    <p>{{ last_review.comments }}</p>
-    <p><small>Revisado por {{ last_review.editor }} el {{ last_review.reviewed_at }}</small></p>
+  <div class="mb-8">
+    <img
+      src="{{ article.image.url }}"
+      alt="{{ article.title }}"
+      class="w-full rounded-lg shadow-md"
+    />
   </div>
   {% endif %}
-  <h3>Comentarios</h3>
-  {% for comment in article.comments.all %}
-  <p>{{ comment.user.username }}: {{ comment.content }}</p>
-  {% endfor %}
-  <button id="like-btn" data-url="{% url 'toggle_like' article.slug %}">
-    <span id="like_text">
-      {% if user in article.liked_by.all %}Unlike{% else %}Like{% endif %}
-    </span>
-  </button>
-  <span style="margin-left: 20px;" id="like_count">{{ article.total_likes }}</span> Likes
-  <form method="post">
-    {% csrf_token %} {{ form.content.errors }}
-    <div style="margin-bottom: 10px">{{ form.content }}</div>
-    <button type="submit">Comentar</button>
-  </form>
-  
-  <script>
-    const likeButton = document.getElementById("like-btn");
-    const likeText = document.getElementById("like_text");
-    const likeCount = document.getElementById("like_count");
-    
+
+  <!-- Content -->
+  <article class="prose prose-lg max-w-none text-gray-800 mb-12">
+    {{ article.content|linebreaks }}
+  </article>
+
+  <!-- Editor Feedback -->
+  {% if user.is_authenticated and user == article.author and last_review %}
+  <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
+    <h3 class="font-semibold text-yellow-800 mb-2">Feedback del editor</h3>
+    <p class="text-yellow-700">{{ last_review.comments }}</p>
+    <p class="text-sm text-yellow-600 mt-2">
+      Revisado por {{ last_review.editor }} el {{
+      last_review.reviewed_at|date:"M d, Y" }}
+    </p>
+  </div>
+  {% endif %}
+
+  <!-- Comments Header -->
+  <div class="border-t border-gray-200 pt-8 mb-6">
+    <h2 class="text-xl font-semibold text-gray-800">Comentarios</h2>
+  </div>
+
+  <!-- Comments List -->
+  <div class="space-y-6 mb-8">
+    {% for comment in article.comments.all %}
+    <div class="flex gap-3">
+      <!-- Avatar -->
+      <div class="flex-shrink-0 flex items-center">
+        <div
+          class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center"
+        >
+          <span class="text-gray-500 text-sm">
+            {{ comment.user.username|make_list|first|upper }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Comment -->
+      <div class="flex-1">
+        <div class="bg-gray-50 rounded-lg p-3">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="font-medium text-gray-800 text-sm"
+              >{{ comment.user.username }}</span
+            >
+            <span class="text-gray-400 text-xs"
+              >{{ comment.created_at|date:"M d, Y" }}</span
+            >
+          </div>
+          <p class="text-gray-700 text-sm">{{ comment.content }}</p>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-gray-500 text-center py-4">
+      No hay comentarios aún. ¡Sé el primero en comentar!
+    </p>
+    {% endfor %}
+  </div>
+
+  <!-- Like Button & Comment Form -->
+  <div class="flex flex-col md:flex-row gap-6 items-start md:items-center">
+    <!-- Like Button -->
+    <button
+      id="like-btn"
+      data-url="{% url 'toggle_like' article.slug %}"
+      class="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 hover:border-gray-400 transition"
+      data-liked="{% if user in article.liked_by.all %}true{% else %}false{% endif %}"
+    >
+      <svg
+        id="like_icon"
+        class="w-5 h-5 {% if user in article.liked_by.all %}text-red-500{% else %}text-gray-600{% endif %}"
+        fill="{% if user in article.liked_by.all %}currentColor{% else %}none{% endif %}"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+        />
+      </svg>
+      <span id="like_count" class="text-gray-500"
+        >{{ article.liked_by.count }}</span
+      >
+    </button>
+
+    <!-- Comment Form -->
+    {% if user.is_authenticated %}
+    <form method="post" class="flex-1 w-full">
+      {% csrf_token %}
+      <div class="flex gap-3">
+        <textarea
+          name="content"
+          rows="2"
+          placeholder="Escribe un comentario..."
+          class="flex-1 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        ></textarea>
+        <button
+          type="submit"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        >
+          Comentar
+        </button>
+      </div>
+      {% if form.content.errors %}
+      <p class="text-red-500 text-sm mt-1">{{ form.content.errors }}</p>
+      {% endif %}
+    </form>
+    {% else %}
+    <a
+      href="/admin/login/?next={{ request.path }}"
+      class="text-blue-600 hover:underline"
+    >
+      Inicia sesión para comentar
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  const likeButton = document.getElementById("like-btn");
+  const likeCount = document.getElementById("like_count");
+  const likeIcon = document.getElementById("like_icon");
+
+  if (likeButton) {
     likeButton.addEventListener("click", (event) => {
       event.preventDefault();
-      
+
       fetch(likeButton.dataset.url, {
         method: "POST",
         headers: {
           "X-CSRFToken": "{{ csrf_token }}",
           "Content-Type": "application/json",
-        }
+        },
       })
-      .then((response) => response.json())
-      .then((data) => {
-        likeCount.textContent = data.total_likes;
-        likeText.textContent = data.liked ? "Unlike" : "Like";
-      })
-      .catch(error => console.error("Error:", error));
+        .then((response) => response.json())
+        .then((data) => {
+          likeCount.textContent = data.total_likes;
+          // Toggle heart color
+          if (data.liked) {
+            likeIcon.classList.remove("text-gray-600");
+            likeIcon.classList.add("text-red-500");
+            likeIcon.setAttribute("fill", "currentColor");
+          } else {
+            likeIcon.classList.remove("text-red-500");
+            likeIcon.classList.add("text-gray-600");
+            likeIcon.setAttribute("fill", "none");
+          }
+        })
+        .catch((error) => console.error("Error:", error));
     });
-  </script>
-</div>
+  }
+</script>
 {% endblock content %}

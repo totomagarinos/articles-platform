@@ -1,21 +1,74 @@
 {% extends "base.html" %} {% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+  {% for article in articles %}
+  <article
+    class="bg-white rounded-lg shadow-sm hover:shadow-md transition p-4 flex gap-4"
+  >
+    <!-- Author avatar (placeholder) -->
+    <div class="flex-shrink-0">
+      <div
+        class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center"
+      >
+        <span class="text-gray-500 font-medium"
+          >{{ article.author.username|make_list|first|upper }}</span
+        >
+      </div>
+    </div>
 
-<h1>Artículos</h1>
+    <!-- Content -->
+    <div class="flex-1 min-w-0">
+      <!-- Title -->
+      <h2 class="text-lg font-semibold text-gray-800 hover:text-blue-600">
+        <a href="{% url 'article_detail' article.slug %}"
+          >{{ article.title }}</a
+        >
+      </h2>
 
-{% for article in articles %}
-<div>
-  <h2>
-    <a href="{% url 'article_detail' article.slug %}">{{ article.title }}</a>
-  </h2>
-  <p><strong>Autor: </strong>{{ article.author }}</p>
-  <p><strong>Categoría: </strong>{{ article.category }}</p>
-  <p>
-    <strong>Tags: </strong>
-    {% for tag in article.tags.all %} {{ tag.name }}{% endfor %}
-  </p>
-  <p><strong>Fecha: </strong>{{ article.created_at|date:"d M Y" }}</p>
-  <p>{{ article.content|truncatewords:30 }}</p>
+      <!-- Meta -->
+      <p class="text-sm text-gray-500 mt-1">
+        By <span class="text-gray-700">{{ article.author.username }}</span>
+        • {{ article.created_at|date:"M d, Y" }}
+      </p>
+
+      <!-- Tags -->
+      <div class="flex flex-wrap gap-2 mt-2">
+        {% for tag in article.tags.all %}
+        <span class="text-xs text-blue-600 hover:underline cursor-pointer"
+          >#{{ tag.name }}</span
+        >
+        {% endfor %}
+      </div>
+
+      <!-- Content excerpt -->
+      <p class="text-sm text-gray-600 mt-3 line-clamp-2">
+        {{ article.content|truncatewords:30 }}
+      </p>
+    </div>
+
+    <!-- Reactions -->
+    <div class="flex-shrink-0 flex items-center gap-3 text-gray-400">
+      <span class="flex items-center gap-1">
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+          />
+        </svg>
+        {{ article.liked_by.count }}
+      </span>
+    </div>
+  </article>
+  {% empty %}
+  <div class="text-center py-12">
+    <p class="text-gray-500">No hay artículos publicados aún.</p>
+  </div>
+  {% endfor %}
 </div>
-{% empty %}
-<p>No hay artículos publicados aún.</p>
-{% endfor %} {% endblock content %}
+{% endblock content %}
