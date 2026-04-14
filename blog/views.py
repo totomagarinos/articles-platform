@@ -9,7 +9,7 @@ from django.views.generic import (
     UpdateView,
     DeleteView,
 )
-from .models import Article, Review
+from .models import Article, Category, Review, Tag
 from users.models import CustomUser
 from .forms import CommentForm, ArticleCreateForm, ReviewArticleForm
 from django.views.generic.edit import FormMixin
@@ -108,8 +108,18 @@ class ArticleCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
             return super().handle_no_permission()
 
     def form_valid(self, form):
+        # Guardar artículo primero (sin tags)
         form.instance.author = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        
+        # Procesar tags manualmente desde el form data
+        tags_value = form.data.get('tags', '')
+        if tags_value:
+            tag_ids = [t.strip() for t in tags_value.split(',') if t.strip().isdigit()]
+            if tag_ids:
+                self.object.tags.set(Tag.objects.filter(id__in=tag_ids))
+        
+        return response
 
     def get_success_url(self):
         return reverse("my_articles")
@@ -119,6 +129,27 @@ class ArticleUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Article
     form_class = ArticleCreateForm
     template_name = "blog/article_form.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        article = self.get_object()
+        
+        # Pasar categoría seleccionada
+        if article.category:
+            ctx['selected_category'] = {
+                'id': article.category.id,
+                'name': article.category.name,
+            }
+        
+        # Pasar tags seleccionados
+        selected_tags = [
+            {'id': tag.id, 'name': tag.name}
+            for tag in article.tags.all()
+        ]
+        ctx['selected_tags'] = selected_tags
+        ctx['selected_tags_ids'] = ','.join(str(t['id']) for t in selected_tags)
+        
+        return ctx
 
     def test_func(self):
         article = self.get_object()
@@ -132,7 +163,16 @@ class ArticleUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         if self.object.status == Article.REJECTED:
             form.instance.status = Article.DRAFT
 
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        
+        # Procesar tags manualmente
+        tags_value = form.data.get('tags', '')
+        if tags_value:
+            tag_ids = [t.strip() for t in tags_value.split(',') if t.strip().isdigit()]
+            if tag_ids:
+                self.object.tags.set(Tag.objects.filter(id__in=tag_ids))
+        
+        return response
 
     def get_success_url(self):
         return reverse("my_articles")
@@ -253,3 +293,13 @@ def toggle_like(request, slug):
         liked = True
 
     return JsonResponse({"liked": liked, "total_likes": article.liked_by.count()})
+
+def category_search(request):
+    query = request.GET.get('q', '')
+    categories = Category.objects.filter(name__icontains=query)[:10]
+    return JsonResponse([{'id': c.id, 'name': c.name} for c in categories], safe=False)
+
+def tag_search(request):
+    query = request.GET.get('q', '')
+    tags = Tag.objects.filter(name__icontains=query)[:10]
+    return JsonResponse([{'id': t.id, 'name': t.name} for t in tags], safe=False)

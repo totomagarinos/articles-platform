@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib.auth import views as auth_views
 from .views import (
     ArticleListView,
     ArticleDetailView,
@@ -6,9 +7,11 @@ from .views import (
     MyArticlesView,
     ArticleUpdateView,
     ArticleDeleteView,
+    category_search,
     submit_for_review,
     PendingArticlesView,
     ReviewArticleView,
+    tag_search,
     toggle_like,
 )
 
@@ -31,4 +34,6 @@ urlpatterns = [
     path("article/<slug:slug>/", ArticleDetailView.as_view(), name="article_detail"),
     path("my-articles/", MyArticlesView.as_view(), name="my_articles"),
     path("pending-articles/", PendingArticlesView.as_view(), name="pending_articles"),
+    path("api/categories/", category_search, name="category_search"),
+    path("api/tags/", tag_search, name="tag_search"),
 ]

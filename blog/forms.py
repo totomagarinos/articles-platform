@@ -18,15 +18,13 @@ class CommentForm(forms.ModelForm):
 class ArticleCreateForm(forms.ModelForm):
     class Meta:
         model = Article
-        fields = ["title", "content", "image", "category", "tags"]
+        fields = ["title", "content", "image", "category"]
         widgets = {
-            "tags": forms.SelectMultiple(),
             "content": forms.Textarea(attrs={"placeholder": "Escribe el contenido de tu artículo..."}),
         }
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        # Auto-generate slug from title
         if not instance.slug:
             instance.slug = slugify(instance.title)
         if commit:

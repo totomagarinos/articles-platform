@@ -57,6 +57,25 @@
             >
             {% endif %}
             <span class="text-gray-900">{{ user.username }}</span>
+            <form method="post" action="{% url 'admin:logout' %}" class="block">
+              {% csrf_token %}
+              <button
+                type="submit"
+                class="block py-2 text-red-600 cursor-pointer"
+              >
+                Cerrar sesión
+              </button>
+            </form>
+            {% else %}
+            <form method="post" action="{% url 'admin:login' %}" class="block">
+              {% csrf_token %}
+              <button
+                type="submit"
+                class="block py-2 text-blue-600 cursor-pointer"
+              >
+                Iniciar sesión
+              </button>
+            </form>
             {% endif %}
           </div>
         </div>
@@ -126,7 +145,27 @@
             class="block py-2 text-blue-600 hover:text-blue-800"
             >Pendientes de revisión</a
           >
-          {% endif %} {% endif %}
+          {% endif %}
+          <form method="post" action="{% url 'admin:logout' %}" class="block">
+            {% csrf_token %}
+            <button
+              type="submit"
+              class="block py-2 text-red-600 cursor-pointer"
+            >
+              Cerrar sesión
+            </button>
+          </form>
+          {% else %}
+          <form method="post" action="{% url 'admin:login' %}" class="block">
+            {% csrf_token %}
+            <button
+              type="submit"
+              class="block py-2 text-blue-600 cursor-pointer"
+            >
+              Iniciar sesión
+            </button>
+          </form>
+          {% endif %}
         </div>
       </div>
     </nav>

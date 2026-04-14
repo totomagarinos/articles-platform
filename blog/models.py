@@ -43,7 +43,7 @@ class Article(models.Model):
 
     title = models.CharField(max_length=100)
 
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
 
     content = models.TextField()
 

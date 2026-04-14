@@ -60,44 +60,30 @@
         <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
           Categoría
         </label>
-        <select 
-          name="{{ form.category.name }}"
-          id="{{ form.category.id_for_label }}"
-          class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white {% if form.category.errors %}border-red-500{% endif %}"
-        >
-          <option value="">Seleccionar categoría</option>
-          {% for choice in form.category.field.queryset %}
-            <option value="{{ choice.pk }}" {% if form.category.value == choice.pk %}selected{% endif %}>
-              {{ choice.name }}
-            </option>
-          {% endfor %}
-        </select>
-        {% if form.category.errors %}
-          <p class="text-red-500 text-sm mt-1">{{ form.category.errors }}</p>
-        {% endif %}
+        <input type="text" id="category-input" placeholder="Buscar categoría..." value="{{ selected_category.name|default:'' }}">
+        <input type="hidden" name="category" id="category-hidden" value="{{ selected_category.id|default:'' }}">
+        <div id="category-suggestions" class="dropdown-suggestions"></div>
+        <div id="category-errors" class="text-red-500 text-sm mt-1">
+          {% if form.category.errors %}
+            {{ form.category.errors }}
+          {% endif %}
+        </div>
       </div>
-
+ 
       <!-- Tags -->
       <div>
         <label for="{{ form.tags.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
           Tags
         </label>
-        <select 
-          name="{{ form.tags.name }}"
-          id="{{ form.tags.id_for_label }}"
-          class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white {% if form.tags.errors %}border-red-500{% endif %}"
-          multiple
-        >
-          {% for choice in form.tags.field.queryset %}
-            <option value="{{ choice.pk }}" {% if choice.pk in form.tags.value %}selected{% endif %}>
-              {{ choice.name }}
-            </option>
-          {% endfor %}
-        </select>
-        <p class="text-xs text-gray-500 mt-1">Mantén presionado Ctrl (Cmd en Mac) para seleccionar múltiples</p>
-        {% if form.tags.errors %}
-          <p class="text-red-500 text-sm mt-1">{{ form.tags.errors }}</p>
-        {% endif %}
+        <input type="text" id="tags-input" placeholder="Buscar tags...">
+        <div id="tags-suggestions" class="dropdown-suggestions"></div>
+        <div id="selected-tags"></div>
+        <input type="hidden" name="tags" id="tags-hidden" value="{{ selected_tags_ids|default:'' }}">
+        <div id="tags-errors" class="text-red-500 text-sm mt-1">
+          {% if form.tags.errors %}
+            {{ form.tags.errors }}
+          {% endif %}
+        </div>
       </div>
     </div>
 
@@ -148,4 +134,175 @@
     </div>
   </form>
 </div>
+
+<script>
+  // --- CATEGORY AUTOCOMPLETE LOGIC ---
+
+  // Get category-related elements from DOM
+  const categoryInput = document.getElementById('category-input');
+  const categorySuggestions = document.getElementById('category-suggestions');
+  const categoryHidden = document.getElementById('category-hidden');
+  const categoryErrors = document.getElementById('category-errors');
+
+  let debounceTimer; // Timer for debounce mechanism
+
+  // Listen to user input for category, debounce API calls
+  categoryInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+
+    const query = categoryInput.value;
+
+    // If input is too short, clear suggestions and return
+    if (query.length < 2) {
+      categorySuggestions.innerHTML = '';
+      return;
+    }
+
+    // Debounce search to limit API queries
+    debounceTimer = setTimeout(() => {
+      searchCategories(query);
+    }, 300);
+  });
+
+  // Fetch categories from API based on query
+  async function searchCategories(query) {
+    try {
+      const response = await fetch(`/api/categories/?q=${encodeURIComponent(query)}`);
+      const categories = await response.json();
+      renderCategorySuggestions(categories);
+    } catch (err) {
+      console.error('Error searching categories', err.message);
+    }
+  }
+
+  // Render category suggestions in dropdown and add click listeners
+  function renderCategorySuggestions(categories) {
+    if (categories.length === 0) {
+      categorySuggestions.innerHTML = '<div class="p-2 text-gray-500">No se encontraron categorías</div>';
+      return;
+    }
+
+    // Create suggestion items with data attributes for id and name
+    categorySuggestions.innerHTML = categories.map(cat => `
+      <div class="suggestion-item cursor-pointer" data-id="${cat.id}" data-name="${cat.name}">
+        ${cat.name}
+      </div>
+    `).join('');
+
+    // Add click listeners to suggestion items for selection
+    categorySuggestions.querySelectorAll('.suggestion-item').forEach(item => {
+      item.addEventListener('click', () => selectCategory(item.dataset));
+    });
+  }
+
+  // When a category is chosen, set hidden/input values and clear suggestions
+  function selectCategory(category) {
+    categoryHidden.value = category.id;       // Set selected category id in hidden field
+    categoryInput.value = category.name;      // Set selected category name in input
+    categorySuggestions.innerHTML = '';      // Hide suggestions
+    categoryErrors.innerHTML = '';           // Clear errors
+  }
+
+  // --- TAG AUTOCOMPLETE LOGIC ---
+
+  const tagsInput = document.getElementById('tags-input');
+  const tagsSuggestions = document.getElementById('tags-suggestions');
+  const tagsErrors = document.getElementById('tags-errors');
+  let tagsDebounceTimer;
+
+  tagsInput.addEventListener('input', () => {
+    clearTimeout(tagsDebounceTimer);
+
+    const query = tagsInput.value;
+
+    if (query.length < 2) {
+      tagsSuggestions.innerHTML = '';
+      return;
+    }
+
+    tagsDebounceTimer = setTimeout(() => {
+      searchTags(query);
+    }, 300);
+  });
+
+  async function searchTags(query) {
+    try {
+      const response = await fetch(`/api/tags/?q=${encodeURIComponent(query)}`);
+      const tags = await response.json();
+      renderTagSuggestions(tags);
+    } catch (err) {
+      console.error('Error searching tags', err.message);
+    }
+  }
+
+  function renderTagSuggestions(tags) {
+    if (tags.length === 0) {
+      tagsSuggestions.innerHTML = '<div class="p-2 text-gray-500">No se encontraron tags</div>';
+      return;
+    }
+
+    tagsSuggestions.innerHTML = tags.map(tag => `
+      <div class='suggestion-item cursor-pointer' data-id="${tag.id}" data-name="${tag.name}">
+        ${tag.name}
+      </div>
+    `).join('');
+
+    tagsSuggestions.querySelectorAll('.suggestion-item').forEach(item => {
+      item.addEventListener('click', () => selectTag(item.dataset));
+    });
+  }
+
+  // --- TAG SELECTION LOGIC ---
+
+  // Array to hold selected tags
+  {% if selected_tags %}
+  const selectedTags = {{ selected_tags|safe }};
+  {% else %}
+  const selectedTags = [];
+  {% endif %}
+  
+  // Render initial tags on page load (if editing)
+  if (selectedTags.length > 0) {
+    renderSelectedTags();
+    document.getElementById('tags-hidden').value = selectedTags.map(t => t.id).join(',');
+  }
+
+  // Add a tag to selection and update hidden input, clear input and suggestions, render selected tags
+  function selectTag(tag) {
+    selectedTags.push({ id: tag.id, name: tag.name });
+
+    // Update hidden input value (CSV of tag ids)
+    document.getElementById('tags-hidden').value =
+      selectedTags.map(t => t.id).join(',');
+
+    renderSelectedTags();
+
+    // Reset input and suggestions
+    document.getElementById('tags-input').value = '';
+    document.getElementById('tags-suggestions').innerHTML = '';
+    tagsErrors.innerHTML = '';
+  }
+
+  // Render selected tags with removable pill buttons
+  function renderSelectedTags() {
+    const container = document.getElementById('selected-tags');
+    container.innerHTML = selectedTags.map(tag => `
+      <span class="tag-pill inline-flex items-center gap-2">
+        ${tag.name}
+        <button type="button" onclick="removeTag('${tag.id}')" class="cursor-pointer">X</button>
+      </span>
+    `).join('');
+  }
+
+  // Remove tag from selection on 'x' click, update hidden input and rerender tags
+  function removeTag(tagId) {
+    const index = selectedTags.findIndex(t => t.id === tagId);
+    if (index > -1) selectedTags.splice(index, 1);
+
+    document.getElementById('tags-hidden').value =
+      selectedTags.map(t => t.id).join(',');
+
+    renderSelectedTags();
+  }
+</script>
 {% endblock content %}
