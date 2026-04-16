@@ -143,12 +143,12 @@ STORAGES = {
     },
     # Para tus archivos de diseño CSS/JS (Static)
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
 # --- PARCHE PARA LIBRERÍA DE CLOUDINARY ---
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Parche para el bug de Django Admin y WhiteNoise
 WHITENOISE_MANIFEST_STRICT = False
