@@ -150,6 +150,10 @@ STORAGES = {
 # --- PARCHE PARA LIBRERÍA DE CLOUDINARY ---
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# Parche para el bug de Django Admin y WhiteNoise
+WHITENOISE_MANIFEST_STRICT = False
+
+
 AUTH_USER_MODEL = 'users.CustomUser'
 
 
