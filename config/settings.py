@@ -147,6 +147,9 @@ STORAGES = {
     },
 }
 
+# --- PARCHE PARA LIBRERÍA DE CLOUDINARY ---
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 AUTH_USER_MODEL = 'users.CustomUser'
 
 
