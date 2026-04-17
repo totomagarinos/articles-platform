@@ -56,13 +56,23 @@
     <!-- Category & Tags -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Category -->
-      <div>
+      <div class="relative">
         <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
           Categoría
         </label>
-        <input type="text" id="category-input" placeholder="Buscar categoría..." value="{{ selected_category.name|default:'' }}">
+        <input
+          type="text"
+          id="category-input"
+          placeholder="Buscar categoría..."
+          value="{{ selected_category.name|default:'' }}"
+          autocomplete="off"
+          class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
         <input type="hidden" name="category" id="category-hidden" value="{{ selected_category.id|default:'' }}">
-        <div id="category-suggestions" class="dropdown-suggestions"></div>
+        <div
+          id="category-suggestions"
+          class="absolute z-20 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden hidden"
+        ></div>
         <div id="category-errors" class="text-red-500 text-sm mt-1">
           {% if form.category.errors %}
             {{ form.category.errors }}
@@ -71,13 +81,22 @@
       </div>
  
       <!-- Tags -->
-      <div>
+      <div class="relative">
         <label for="{{ form.tags.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
           Tags
         </label>
-        <input type="text" id="tags-input" placeholder="Buscar tags...">
-        <div id="tags-suggestions" class="dropdown-suggestions"></div>
-        <div id="selected-tags"></div>
+        <input
+          type="text"
+          id="tags-input"
+          placeholder="Buscar tags..."
+          autocomplete="off"
+          class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+        <div
+          id="tags-suggestions"
+          class="absolute z-20 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden hidden"
+        ></div>
+        <div id="selected-tags" class="mt-3 flex flex-wrap gap-2"></div>
         <input type="hidden" name="tags" id="tags-hidden" value="{{ selected_tags_ids|default:'' }}">
         <div id="tags-errors" class="text-red-500 text-sm mt-1">
           {% if form.tags.errors %}
@@ -178,13 +197,15 @@
   // Render category suggestions in dropdown and add click listeners
   function renderCategorySuggestions(categories) {
     if (categories.length === 0) {
-      categorySuggestions.innerHTML = '<div class="p-2 text-gray-500">No se encontraron categorías</div>';
+      categorySuggestions.classList.remove('hidden');
+      categorySuggestions.innerHTML = '<div class="px-4 py-2 text-sm text-gray-500">No se encontraron categorías</div>';
       return;
     }
 
     // Create suggestion items with data attributes for id and name
+    categorySuggestions.classList.remove('hidden');
     categorySuggestions.innerHTML = categories.map(cat => `
-      <div class="suggestion-item cursor-pointer" data-id="${cat.id}" data-name="${cat.name}">
+      <div class="suggestion-item px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer" data-id="${cat.id}" data-name="${cat.name}">
         ${cat.name}
       </div>
     `).join('');
@@ -200,6 +221,7 @@
     categoryHidden.value = category.id;       // Set selected category id in hidden field
     categoryInput.value = category.name;      // Set selected category name in input
     categorySuggestions.innerHTML = '';      // Hide suggestions
+    categorySuggestions.classList.add('hidden');
     categoryErrors.innerHTML = '';           // Clear errors
   }
 
@@ -237,12 +259,14 @@
 
   function renderTagSuggestions(tags) {
     if (tags.length === 0) {
-      tagsSuggestions.innerHTML = '<div class="p-2 text-gray-500">No se encontraron tags</div>';
+      tagsSuggestions.classList.remove('hidden');
+      tagsSuggestions.innerHTML = '<div class="px-4 py-2 text-sm text-gray-500">No se encontraron tags</div>';
       return;
     }
 
+    tagsSuggestions.classList.remove('hidden');
     tagsSuggestions.innerHTML = tags.map(tag => `
-      <div class='suggestion-item cursor-pointer' data-id="${tag.id}" data-name="${tag.name}">
+      <div class='suggestion-item px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer' data-id="${tag.id}" data-name="${tag.name}">
         ${tag.name}
       </div>
     `).join('');
@@ -280,6 +304,7 @@
     // Reset input and suggestions
     document.getElementById('tags-input').value = '';
     document.getElementById('tags-suggestions').innerHTML = '';
+    document.getElementById('tags-suggestions').classList.add('hidden');
     tagsErrors.innerHTML = '';
   }
 
@@ -287,9 +312,11 @@
   function renderSelectedTags() {
     const container = document.getElementById('selected-tags');
     container.innerHTML = selectedTags.map(tag => `
-      <span class="tag-pill inline-flex items-center gap-2">
-        ${tag.name}
-        <button type="button" onclick="removeTag('${tag.id}')" class="cursor-pointer">X</button>
+      <span class="tag-pill inline-flex items-center gap-2 rounded-full bg-blue-50 text-blue-700 px-4 py-1 text-sm border border-blue-200">
+        <span class="truncate max-w-[12rem]">${tag.name}</span>
+        <button type="button" onclick="removeTag('${tag.id}')" class="text-blue-700/70 hover:text-blue-800 transition leading-none cursor-pointer" aria-label="Quitar tag">
+          X
+        </button>
       </span>
     `).join('');
   }
