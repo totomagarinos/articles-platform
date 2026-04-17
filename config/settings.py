@@ -141,17 +141,14 @@ STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
-    # Para tus archivos de diseño CSS/JS (Static)
+    # Para archivos de diseño CSS/JS (Static) - motor nativo de Django
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
-# --- PARCHE PARA LIBRERÍA DE CLOUDINARY ---
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-
-# Parche para el bug de Django Admin y WhiteNoise
-WHITENOISE_MANIFEST_STRICT = False
+# Parche para Cloudinary actualizado
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 
 AUTH_USER_MODEL = 'users.CustomUser'
