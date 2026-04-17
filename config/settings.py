@@ -38,8 +38,6 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 # Application definition
 
 INSTALLED_APPS = [
-    'cloudinary_storage',
-    'cloudinary',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -137,9 +135,9 @@ STATICFILES_DIRS = [
 ]
 
 STORAGES = {
-    # Para los archivos de los usuarios (Media)
+    # Para los archivos de los usuarios (Media) - almacenamiento local
     "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     # Para archivos de diseño CSS/JS (Static) - motor nativo de Django
     "staticfiles": {
@@ -147,7 +145,7 @@ STORAGES = {
     },
 }
 
-# Parche para Cloudinary actualizado
+# Archivos estáticos - motor nativo
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 
