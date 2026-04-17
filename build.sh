@@ -9,7 +9,7 @@ python manage.py tailwind install
 python manage.py tailwind build
 
 # 3. Recolectar estáticos
-python manage.py collectstatic --noinput
+python manage.py collectstatic --noinput --clear
 
 # 4. Migrar la base de datos
 python manage.py migrate
