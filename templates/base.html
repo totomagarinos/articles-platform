@@ -67,7 +67,7 @@
               </button>
             </form>
             {% else %}
-            <form method="post" action="{% url 'admin:login' %}" class="block">
+            <form method="post" action="{% url 'login' %}" class="block">
               {% csrf_token %}
               <button
                 type="submit"

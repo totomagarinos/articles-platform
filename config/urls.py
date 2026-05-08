@@ -22,6 +22,7 @@ from django.views.static import serve
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('blog.urls')),
+    path('', include('users.urls')),
 ]
 
 # Servir archivos media en producción
